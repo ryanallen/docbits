@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`replaceFragments nested fragments home 1`] = `
+"# Home
+
+root table of contents
+
+"
+`;
+
+exports[`replaceFragments nested fragments project-x 1`] = `
+"# Project X
+
+table of contents for project-x
+
+"
+`;

@@ -1,0 +1,9 @@
+// if anyone opens this file, this will ask if you want to install these extensions.
+{
+  "recommendations": [
+    // https://editorconfig.org/
+    "editorconfig.editorconfig",
+    // https://prettier.io/
+    "esbenp.prettier-vscode"
+  ]
+}

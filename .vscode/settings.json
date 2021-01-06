@@ -1,0 +1,11 @@
+{
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": false
+  },
+  "editor.formatOnSave": true,
+  "files.associations": {
+    ".variables": "editorconfig"
+  },
+  "prettier.enable": true
+}
