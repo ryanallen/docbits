@@ -59,7 +59,6 @@ export async function replaceFragments(
 
 		return fragments
 	}
-
 	async function _replaceFragments() {
 		const docPaths = await globby([
 			`${docsRoot}/**/*.md`,
