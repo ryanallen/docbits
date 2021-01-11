@@ -7,7 +7,7 @@ about: "Something is broken? \U0001F528"
 
 ## Package name / version
 
-muesli@1.0.0
+docbits@1.0.0
 
 ## Description
 

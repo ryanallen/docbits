@@ -1,14 +1,14 @@
-# Muesli
+# docbits
 
 Design docs, specifications, code (back end &amp; front end), all in a single source of truth.
 
 ## Why
 
-Because $muesli_solutions solves $muesli_problems for $muesli_users.
+Because $docbits_solutions solves $docbits_problems for $docbits_users.
 
 ## How
 
-Using $muesli_design and $muesli_code.
+Using $docbits_design and $docbits_code.
 
 ## When
 
@@ -25,13 +25,13 @@ $code=[]
 ## Installation
 
 ```bash
-npm install --save-dev muesli
+npm install --save-dev docbits
 ```
 
 ## Usage
 
 ```ts
-import { replaceFragments } from 'muesli'
+import { replaceFragments } from 'docbits'
 
 main()
 

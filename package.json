@@ -1,5 +1,5 @@
 {
-  "name": "muesli",
+  "name": "docbits",
   "version": "0.0.1",
   "description": "Design docs, specifications, code (back end &amp; front end), all in a single source of truth.",
   "main": "dist/index.js",
@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ryanallen/muesli.git"
+    "url": "git+https://github.com/ryanallen/docbits.git"
   },
   "author": "Ryan Allen (https://github.com/ryanallen)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ryanallen/muesli/issues"
+    "url": "https://github.com/ryanallen/docbits/issues"
   },
-  "homepage": "https://github.com/ryanallen/muesli#readme",
+  "homepage": "https://github.com/ryanallen/docbits#readme",
   "jest": {
     "collectCoverage": true,
     "coverageThreshold": {
