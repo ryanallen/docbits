@@ -31,11 +31,11 @@ npm install --save-dev docbits
 ## Usage
 
 ```ts
-import { replaceFragments } from 'docbits'
+import { replaceBits } from 'docbits'
 
 main()
 
 async function main() {
-	await replaceFragments()
+	await replaceBits()
 }
 ```

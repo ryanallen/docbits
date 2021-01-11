@@ -1,1 +1,1 @@
-export * from './replaceFragments'
+export * from './replaceBits'
