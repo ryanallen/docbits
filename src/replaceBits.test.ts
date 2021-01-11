@@ -7,19 +7,19 @@ import mkdirp from 'mkdirp'
 
 import pkg from '../package.json'
 
-import { replaceFragments } from './replaceFragments'
+import { replaceBits } from './replaceBits'
 
 const readFile = promisify(_readFile)
 
-describe(replaceFragments.name, () => {
+describe(replaceBits.name, () => {
 	const fixturesPath = 'src/__fixtures__'
 	const outputDir = join(tmpdir(), pkg.name)
 
 	mkdirp.sync(outputDir)
 
-	describe('nested fragments', () => {
+	describe('nested bits', () => {
 		beforeAll(() =>
-			replaceFragments(`${fixturesPath}/nested`, {
+			replaceBits(`${fixturesPath}/nested`, {
 				outputDir,
 			}),
 		)
@@ -37,11 +37,11 @@ describe(replaceFragments.name, () => {
 		})
 	})
 
-	it("throws if fragment doesn't exist", () => {
+	it("throws if bit doesn't exist", () => {
 		return expect(
-			replaceFragments(`${fixturesPath}/missing-fragment`, {
+			replaceBits(`${fixturesPath}/missing-bit`, {
 				outputDir,
 			}),
-		).rejects.toThrow('fragment ${does-not-exist} not found relative to')
+		).rejects.toThrow('bit ${does-not-exist} not found relative to')
 	})
 })
