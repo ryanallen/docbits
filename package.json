@@ -35,7 +35,11 @@
         "lines": 100,
         "statements": 100
       }
-    }
+    },
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ]
   },
   "prettier": {
     "arrowParens": "always",
@@ -49,6 +53,7 @@
     "@types/node": "^14.14.19",
     "@types/yargs": "^15.0.12",
     "jest": "^26.6.3",
+    "jest-watch-typeahead": "^0.6.1",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.4.4",

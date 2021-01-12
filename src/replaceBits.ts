@@ -1,5 +1,5 @@
 import { readFile as _readFile, writeFile as _writeFile } from 'fs'
-import { relative, dirname, resolve } from 'path'
+import { dirname, posix, relative, resolve } from 'path'
 import { promisify } from 'util'
 
 import { red } from 'chalk'
@@ -46,7 +46,7 @@ export async function replaceBits({
 }: Options = {}) {
 	await mkdirp(outputDir)
 
-	const bitPathsGlob = `${root}/**/${bitsDirName}/*.md`
+	const bitPathsGlob = posix.join(root, `**/${bitsDirName}/*.md`)
 	const bits = await loadBits()
 
 	return _replaceBits()
@@ -68,7 +68,10 @@ export async function replaceBits({
 	}
 
 	async function _replaceBits() {
-		const docPaths = await globby([`${root}/**/*.md`, `!${bitPathsGlob}`])
+		const docPaths = await globby([
+			posix.join(root, '**/*.md'),
+			`!${bitPathsGlob}`,
+		])
 
 		return Promise.all(docPaths.map(replaceBit))
 
@@ -87,7 +90,11 @@ export async function replaceBits({
 					let currentDir = docDir
 
 					while (true) {
-						const bitPath = `${currentDir}/${bitsDirName}/${bitName}.md`
+						const bitPath = posix.join(
+							currentDir,
+							bitsDirName,
+							`${bitName}.md`,
+						)
 						const bit = bits.get(bitPath)
 						if (bit) {
 							return bit
@@ -104,10 +111,10 @@ export async function replaceBits({
 						currentDir = parentDir
 					}
 
-					function bail() {
+					function bail(): never {
 						throw new Error(
 							red(
-								`bit \${${bitName}} not found relative to ${relative(
+								`bit \${${bitName}} not found relative to ${posix.relative(
 									process.cwd(),
 									docDir,
 								)}`,

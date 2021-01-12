@@ -1,3 +1,5 @@
+import { posix, relative } from 'path'
+
 import { red } from 'chalk'
 
 import pkg from '../package.json'
@@ -69,11 +71,14 @@ describe(cli.name, () => {
 
 	describe('missing bit scenario', () => {
 		it('logs the error', async () => {
-			await cli(['--root', './src/__fixtures__/missing-bit'])
-			expect(consoleError).toHaveBeenCalledWith(
-				red(
-					'bit ${does-not-exist} not found relative to src\\__fixtures__\\missing-bit',
-				),
+			const location = posix.join(
+				relative(process.cwd(), __dirname),
+				'__fixtures__',
+				'missing-bit',
+			)
+			await cli(['--root', location])
+			expect((consoleError.mock.calls[0] as [string])[0]).toMatch(
+				'bit ${does-not-exist} not found relative to',
 			)
 		})
 	})
