@@ -11,32 +11,42 @@ const writeFile = promisify(_writeFile)
 
 type Bits = Map<string | Buffer, string>
 
-interface Options {
+export interface Options {
 	/**
 	 * @default "_bits"
 	 */
 	bitsDirName?: string
+	/**
+	 * @default "./documents"
+	 */
+	root?: string
 	/**
 	 * @default "./dist/documents"
 	 */
 	outputDir?: string
 }
 
+export enum DefaultOptions {
+	BitsDirName = '_bits',
+	Root = './documents',
+	OutputDir = './dist/documents',
+}
+
 /* istanbul ignore next */
 /**
- * Replaces markdown bits in Markdown files that live within `docsRoot`.
+ * Replaces markdown bits in Markdown files that live within `${options.root}`.
  * Searches for bits that match the format `${bit-name}` with content
- * from `${options.bitsDirName}/bit-name.md` within the same folder.
- * @param docsRoot defaults to `"./documents"`.
+ * from `${options.bitsDirName}/${bit-name}.md` within the same folder.
  * @param options
  */
-export async function replaceBits(
-	docsRoot = './documents',
-	{ bitsDirName = '_bits', outputDir = './dist/documents' }: Options = {},
-) {
+export async function replaceBits({
+	bitsDirName = DefaultOptions.BitsDirName,
+	root = DefaultOptions.Root,
+	outputDir = DefaultOptions.OutputDir,
+}: Options = {}) {
 	await mkdirp(outputDir)
 
-	const bitPathsGlob = `${docsRoot}/**/${bitsDirName}/*.md`
+	const bitPathsGlob = `${root}/**/${bitsDirName}/*.md`
 	const bits = await loadBits()
 
 	return _replaceBits()
@@ -56,11 +66,9 @@ export async function replaceBits(
 
 		return bits
 	}
+
 	async function _replaceBits() {
-		const docPaths = await globby([
-			`${docsRoot}/**/*.md`,
-			`!${bitPathsGlob}`,
-		])
+		const docPaths = await globby([`${root}/**/*.md`, `!${bitPathsGlob}`])
 
 		return Promise.all(docPaths.map(replaceBit))
 
@@ -68,14 +76,14 @@ export async function replaceBits(
 			const bitPattern = /\${([\w\d-]+)}/g
 			const docDir = dirname(docPath)
 			const contents = (await readFile(docPath)).toString()
-			const outputPath = resolve(outputDir, relative(docsRoot, docPath))
+			const outputPath = resolve(outputDir, relative(root, docPath))
 
 			await mkdirp(dirname(outputPath))
 
 			return writeFile(
 				outputPath,
 				contents.replace(bitPattern, (_m, bitName) => {
-					const absoluteDocsRoot = resolve(docsRoot)
+					const absoluteRoot = resolve(root)
 					let currentDir = docDir
 
 					while (true) {
@@ -87,7 +95,7 @@ export async function replaceBits(
 
 						const parentDir = resolve(currentDir, '..')
 						if (
-							currentDir === absoluteDocsRoot ||
+							currentDir === absoluteRoot ||
 							currentDir === parentDir
 						) {
 							bail()

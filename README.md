@@ -28,7 +28,13 @@ $code=[]
 npm install --save-dev docbits
 ```
 
-## Usage
+## CLI Usage
+
+```zsh
+npx docbits --help
+```
+
+## API Usage
 
 ```ts
 import { replaceBits } from 'docbits'
