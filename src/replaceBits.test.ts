@@ -19,28 +19,30 @@ describe(replaceBits.name, () => {
 
 	describe('nested bits', () => {
 		beforeAll(() =>
-			replaceBits(`${fixturesPath}/nested`, {
+			replaceBits({
 				outputDir,
+				root: `${fixturesPath}/nested`,
 			}),
 		)
 
 		test('home', async () => {
 			const buffer = await readFile(`${outputDir}/home.md`)
 
-			expect(buffer.toString()).toMatchSnapshot()
+			expect(buffer.toString()).toMatch('root table of contents')
 		})
 
 		test('project-x', async () => {
 			const buffer = await readFile(`${outputDir}/project-x/home.md`)
 
-			expect(buffer.toString()).toMatchSnapshot()
+			expect(buffer.toString()).toMatch('table of contents for project-x')
 		})
 	})
 
 	it("throws if bit doesn't exist", () => {
 		return expect(
-			replaceBits(`${fixturesPath}/missing-bit`, {
+			replaceBits({
 				outputDir,
+				root: `${fixturesPath}/missing-bit`,
 			}),
 		).rejects.toThrow('bit ${does-not-exist} not found relative to')
 	})
