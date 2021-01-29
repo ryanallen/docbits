@@ -2,7 +2,7 @@ import { posix, relative } from 'path'
 
 import { red } from 'chalk'
 
-// @ts-expect-error
+// @ts-ignore when building
 import pkg from '../package.json'
 
 import { cli } from './cli'
