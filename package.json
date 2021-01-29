@@ -1,6 +1,6 @@
 {
   "name": "docbits",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A single source of truth for documentation, keeping things DRY and maintainable.",
   "main": "dist/index.js",
   "files": [

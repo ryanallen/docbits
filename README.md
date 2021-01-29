@@ -29,12 +29,12 @@ npx docbits --help
 ### API
 
 ```ts
-import { replaceBits } from 'docbits'
+import { replaceBits, writeResult } from 'docbits'
 
 main()
 
 async function main() {
-  await replaceBits(/* options */)
+  return writeResult(await replaceBits())
 }
 ```
 

@@ -3,7 +3,13 @@ import { red } from 'chalk'
 // @ts-ignore when building
 import pkg from '../package.json'
 
-import { replaceBits, DefaultOptions } from './replaceBits'
+import {
+	replaceBits,
+	DefaultOptions,
+	ReplaceOptions,
+	WriteOptions,
+	writeResult,
+} from './replaceBits'
 
 export async function cli(args = process.argv.slice(2)) {
 	const { help, version }: { help?: string; version?: string } = {
@@ -49,11 +55,14 @@ export async function cli(args = process.argv.slice(2)) {
 		console.log(`  -o, --outputDir    default: "${DefaultOptions.OutputDir}"`)
 	}
 
-	const options = {
+	const replaceOptions = ({
 		...consumeOptionArgument('bitsDirName', { short: 'b' }),
 		...consumeOptionArgument('root', { short: 'r' }),
+	} as unknown) as ReplaceOptions
+
+	const writeOptions = ({
 		...consumeOptionArgument('outputDir', { short: 'o' }),
-	}
+	} as unknown) as WriteOptions
 
 	if (args.length) {
 		bail('too many arguments')
@@ -67,7 +76,7 @@ export async function cli(args = process.argv.slice(2)) {
 	}
 
 	try {
-		await replaceBits(options)
+		await writeResult(replaceBits(replaceOptions), writeOptions)
 	} catch (error) {
 		console.error(error.message)
 		console.log()
