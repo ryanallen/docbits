@@ -14,7 +14,7 @@
     "test": "jest",
     "watch": "jest --watchAll",
     "cover": "jest --coverage",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
