@@ -1,5 +1,5 @@
 import { readFile as _readFile, writeFile as _writeFile } from 'fs'
-import { basename, dirname, posix, relative, resolve } from 'path'
+import { dirname, posix, resolve } from 'path'
 import { promisify } from 'util'
 
 import { red } from 'chalk'
@@ -11,7 +11,7 @@ const writeFile = promisify(_writeFile)
 
 type Bits = Map<string | Buffer, string>
 
-export interface Options {
+export interface ReplaceOptions {
 	/**
 	 * For each variable, docbits will look here for files with a base name
 	 * matching the variable name.
@@ -24,6 +24,9 @@ export interface Options {
 	 * @default "./documents"
 	 */
 	root?: string
+}
+
+export interface WriteOptions {
 	/**
 	 * The resulting files will be written here, preserving the existing folder
 	 * structure.
@@ -45,17 +48,12 @@ export enum DefaultOptions {
  * from `${options.bitsDirName}/${bit-name}.md` within the same folder.
  * @param options
  */
-export async function replaceBits({
+export async function* replaceBits({
 	bitsDirName = DefaultOptions.BitsDirName,
 	root = DefaultOptions.Root,
-	outputDir = DefaultOptions.OutputDir,
-}: Options = {}) {
-	await mkdirp(outputDir)
-
+}: ReplaceOptions = {}) {
 	const bitPathsGlob = posix.join(root, `**/${bitsDirName}/*`)
 	const bits = await loadBits()
-
-	return _replaceBits()
 
 	async function loadBits() {
 		const bits: Bits = new Map()
@@ -65,7 +63,7 @@ export async function replaceBits({
 			bitPaths.map(async (bitPath) => {
 				const bp = bitPath.toString()
 				bits.set(
-					posix.join(dirname(bp), basename(bp)),
+					posix.join(posix.dirname(bp), posix.basename(bp)),
 					(await readFile(bp)).toString(),
 				)
 			}),
@@ -74,62 +72,73 @@ export async function replaceBits({
 		return bits
 	}
 
-	async function _replaceBits() {
-		const docPaths = await globby([
-			posix.join(root, '**'),
-			`!${bitPathsGlob}`,
-		])
+	const docPaths = await globby([posix.join(root, '**'), `!${bitPathsGlob}`])
 
-		return Promise.all(docPaths.map(replaceBit))
+	for (const docPath of docPaths) {
+		const bitPattern = /\${([\w\d-]+)}/g
+		const docDir = posix.dirname(docPath)
+		const contents = (await readFile(docPath)).toString()
 
-		async function replaceBit(docPath: string) {
-			const bitPattern = /\${([\w\d-]+)}/g
-			const docDir = dirname(docPath)
-			const contents = (await readFile(docPath)).toString()
-			const outputPath = resolve(outputDir, relative(root, docPath))
+		yield [
+			posix.relative(root, docPath),
+			contents.replace(bitPattern, (_m, bitName) => {
+				const absoluteRoot = posix.resolve(root)
+				let currentDir = docDir
 
-			await mkdirp(dirname(outputPath))
-
-			return writeFile(
-				outputPath,
-				contents.replace(bitPattern, (_m, bitName) => {
-					const absoluteRoot = resolve(root)
-					let currentDir = docDir
-
-					while (true) {
-						const bitPath = posix.join(
-							currentDir,
-							bitsDirName,
-							`${bitName}.md`,
-						)
-						const bit = bits.get(bitPath)
-						if (bit) {
-							return bit
-						}
-
-						const parentDir = resolve(currentDir, '..')
-						if (
-							currentDir === absoluteRoot ||
-							currentDir === parentDir
-						) {
-							bail()
-						}
-
-						currentDir = parentDir
+				while (true) {
+					const bitPath = posix.join(
+						currentDir,
+						bitsDirName,
+						`${bitName}.md`,
+					)
+					const bit = bits.get(bitPath)
+					if (bit) {
+						return bit
 					}
 
-					function bail(): never {
-						throw new Error(
-							red(
-								`bit \${${bitName}} not found relative to ${posix.relative(
-									process.cwd(),
-									docDir,
-								)}`,
-							),
-						)
+					const parentDir = posix.resolve(currentDir, '..')
+					if (
+						currentDir === absoluteRoot ||
+						currentDir === parentDir
+					) {
+						bail()
 					}
-				}),
-			)
-		}
+
+					currentDir = parentDir
+				}
+
+				function bail(): never {
+					throw new Error(
+						red(
+							`bit \${${bitName}} not found relative to ${posix.relative(
+								process.cwd(),
+								docDir,
+							)}`,
+						),
+					)
+				}
+			}),
+		] as const
 	}
+}
+
+export async function writeResult(
+	files: ReturnType<typeof replaceBits>,
+	/* istanbul ignore next */
+	{ outputDir = DefaultOptions.OutputDir }: WriteOptions = {},
+) {
+	await mkdirp(outputDir)
+
+	const writes: Promise<void>[] = []
+
+	for await (const [relativePath, contents] of files) {
+		const outputPath = resolve(outputDir, relativePath)
+		writes.push(
+			mkdirp(dirname(outputPath)).then(() =>
+				writeFile(outputPath, contents),
+			),
+		)
+	}
+
+	return Promise.all(writes)
 }

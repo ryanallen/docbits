@@ -7,11 +7,37 @@ import mkdirp from 'mkdirp'
 
 import pkg from '../package.json'
 
-import { replaceBits } from './replaceBits'
+import { replaceBits, writeResult } from './replaceBits'
 
 const readFile = promisify(_readFile)
 
 describe(replaceBits.name, () => {
+	const fixturesPath = 'src/__fixtures__'
+
+	it('replaces nested bits', async () => {
+		const result: [string, string][] = []
+
+		for await (const [relativePath, contents] of replaceBits({
+			root: `${fixturesPath}/nested`,
+		})) {
+			result.push([relativePath, contents])
+		}
+
+		expect(result).toMatchSnapshot()
+	})
+
+	it("throws if bit doesn't exist", async () => {
+		return expect(async () => {
+			for await (const [] of replaceBits({
+				root: `${fixturesPath}/missing-bit`,
+			})) {
+				continue
+			}
+		}).rejects.toThrow('bit ${does-not-exist} not found relative to')
+	})
+})
+
+describe(writeResult.name, () => {
 	const fixturesPath = 'src/__fixtures__'
 	const outputDir = join(tmpdir(), pkg.name)
 
@@ -19,10 +45,12 @@ describe(replaceBits.name, () => {
 
 	describe('nested bits', () => {
 		beforeAll(() =>
-			replaceBits({
-				outputDir,
-				root: `${fixturesPath}/nested`,
-			}),
+			writeResult(
+				replaceBits({
+					root: `${fixturesPath}/nested`,
+				}),
+				{ outputDir },
+			),
 		)
 
 		test('home', async () => {
@@ -36,14 +64,5 @@ describe(replaceBits.name, () => {
 
 			expect(buffer.toString()).toMatch('table of contents for project-x')
 		})
-	})
-
-	it("throws if bit doesn't exist", () => {
-		return expect(
-			replaceBits({
-				outputDir,
-				root: `${fixturesPath}/missing-bit`,
-			}),
-		).rejects.toThrow('bit ${does-not-exist} not found relative to')
 	})
 })

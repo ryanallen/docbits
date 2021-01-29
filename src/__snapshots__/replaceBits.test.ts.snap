@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`replaceBits replaces nested bits 1`] = `
+Array [
+  Array [
+    "home.md",
+    "# Home
+
+root table of contents
+
+",
+  ],
+  Array [
+    "project-x/home.md",
+    "# Project X
+
+table of contents for project-x
+
+",
+  ],
+]
+`;
