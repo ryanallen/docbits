@@ -1,5 +1,5 @@
 import { readFile as _readFile, writeFile as _writeFile } from 'fs'
-import { basename, dirname, posix, relative, resolve } from 'path'
+import { dirname, posix, resolve } from 'path'
 import { promisify } from 'util'
 
 import { red } from 'chalk'
@@ -63,7 +63,7 @@ export async function* replaceBits({
 			bitPaths.map(async (bitPath) => {
 				const bp = bitPath.toString()
 				bits.set(
-					posix.join(dirname(bp), basename(bp)),
+					posix.join(posix.dirname(bp), posix.basename(bp)),
 					(await readFile(bp)).toString(),
 				)
 			}),
@@ -76,13 +76,13 @@ export async function* replaceBits({
 
 	for (const docPath of docPaths) {
 		const bitPattern = /\${([\w\d-]+)}/g
-		const docDir = dirname(docPath)
+		const docDir = posix.dirname(docPath)
 		const contents = (await readFile(docPath)).toString()
 
 		yield [
-			relative(root, docPath),
+			posix.relative(root, docPath),
 			contents.replace(bitPattern, (_m, bitName) => {
-				const absoluteRoot = resolve(root)
+				const absoluteRoot = posix.resolve(root)
 				let currentDir = docDir
 
 				while (true) {
@@ -96,7 +96,7 @@ export async function* replaceBits({
 						return bit
 					}
 
-					const parentDir = resolve(currentDir, '..')
+					const parentDir = posix.resolve(currentDir, '..')
 					if (
 						currentDir === absoluteRoot ||
 						currentDir === parentDir
