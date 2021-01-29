@@ -14,8 +14,7 @@
     "test": "jest",
     "watch": "jest --watchAll",
     "cover": "jest --coverage",
-    "prepare": "npm run build",
-    "preworkflows": "npm run build"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
