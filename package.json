@@ -1,6 +1,6 @@
 {
   "name": "docbits",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Design docs, specifications, code (back end & front end), all in a single source of truth.",
   "main": "dist/index.js",
   "files": [
@@ -8,6 +8,7 @@
     "dist"
   ],
   "bin": "./bin/docbits",
+  "type": "module",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "tsc -p tsconfig.build.json",

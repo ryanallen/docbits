@@ -1,5 +1,6 @@
 import { red } from 'chalk'
 
+// @ts-expect-error
 import pkg from '../package.json'
 
 import { replaceBits, DefaultOptions } from './replaceBits'
