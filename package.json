@@ -15,8 +15,7 @@
     "watch": "jest --watchAll",
     "cover": "jest --coverage",
     "prepare": "npm run build",
-    "preworkflows": "npm run build",
-    "workflows": "npx docbits -r workflows -o .github/workflows"
+    "preworkflows": "npm run build"
   },
   "repository": {
     "type": "git",
