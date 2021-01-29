@@ -1,5 +1,5 @@
 import { readFile as _readFile, writeFile as _writeFile } from 'fs'
-import { dirname, posix, relative, resolve } from 'path'
+import { basename, dirname, posix, relative, resolve } from 'path'
 import { promisify } from 'util'
 
 import { red } from 'chalk'
@@ -13,14 +13,20 @@ type Bits = Map<string | Buffer, string>
 
 export interface Options {
 	/**
+	 * For each variable, docbits will look here for files with a base name
+	 * matching the variable name.
 	 * @default "_bits"
 	 */
 	bitsDirName?: string
 	/**
+	 * Starting here, docbits will look in files for variables in the format
+	 * `${variable_name}`.
 	 * @default "./documents"
 	 */
 	root?: string
 	/**
+	 * The resulting files will be written here, preserving the existing folder
+	 * structure.
 	 * @default "./dist/documents"
 	 */
 	outputDir?: string
@@ -46,7 +52,7 @@ export async function replaceBits({
 }: Options = {}) {
 	await mkdirp(outputDir)
 
-	const bitPathsGlob = posix.join(root, `**/${bitsDirName}/*.md`)
+	const bitPathsGlob = posix.join(root, `**/${bitsDirName}/*`)
 	const bits = await loadBits()
 
 	return _replaceBits()
@@ -57,9 +63,10 @@ export async function replaceBits({
 
 		await Promise.all(
 			bitPaths.map(async (bitPath) => {
+				const bp = bitPath.toString()
 				bits.set(
-					bitPath.toString(),
-					(await readFile(bitPath)).toString(),
+					posix.join(dirname(bp), basename(bp)),
+					(await readFile(bp)).toString(),
 				)
 			}),
 		)
@@ -69,7 +76,7 @@ export async function replaceBits({
 
 	async function _replaceBits() {
 		const docPaths = await globby([
-			posix.join(root, '**/*.md'),
+			posix.join(root, '**'),
 			`!${bitPathsGlob}`,
 		])
 
