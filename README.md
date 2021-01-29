@@ -34,20 +34,18 @@ import { replaceBits, writeResult } from 'docbits'
 main()
 
 async function main() {
-  return writeResult(await replaceBits())
+  return writeResult(replaceBits())
 }
 ```
 
-### npm script
+You don't have to write the result, if you have something else in mind.
 
-```json
-{
-  "scripts": {
-    "docbits": "docbits"
+```ts
+async function main() {
+  for await (const [relativePath, contents] of replaceBits()) {
+    // do stuff
   }
 }
 ```
 
-```zsh
-npm run docbits
-```
+This works, because `replaceBits` is an async generator function, yielding each `relativePath` and `contents` as they become available.
