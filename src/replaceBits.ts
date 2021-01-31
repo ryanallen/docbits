@@ -9,18 +9,16 @@ import mkdirp from 'mkdirp'
 const readFile = promisify(_readFile)
 const writeFile = promisify(_writeFile)
 
-type Bits = Map<string | Buffer, string>
-
 export interface ReplaceOptions {
 	/**
-	 * For each variable, docbits will look here for files with a base name
-	 * matching the variable name.
+	 * For each variable, docbits will look here for file names that match the
+	 * variable name (without the extension).
 	 * @default "_bits"
 	 */
 	bitsDirName?: string
 	/**
 	 * Starting here, docbits will look in files for variables in the format
-	 * `${variable_name}`.
+	 * `${variable-name}`.
 	 * @default "./documents"
 	 */
 	root?: string
@@ -41,11 +39,14 @@ export enum DefaultOptions {
 	OutputDir = './dist/documents',
 }
 
+const bitPattern = /\${([\w\d-_]+)}/g
+
 /* istanbul ignore next */
 /**
- * Replaces markdown bits in Markdown files that live within `${options.root}`.
- * Searches for bits that match the format `${bit-name}` with content
- * from `${options.bitsDirName}/${bit-name}.md` within the same folder.
+ * Replaces variables in files that live within `${options.root}`.
+ * Searches for variables that match the format `${bit-name}` and replaces
+ * them with content from matching bits in `${options.bitsDirName}/${bit-name}*`
+ * within the same folder.
  * @param options
  */
 export async function* replaceBits({
@@ -53,73 +54,82 @@ export async function* replaceBits({
 	root = DefaultOptions.Root,
 }: ReplaceOptions = {}) {
 	const bitPathsGlob = posix.join(root, `**/${bitsDirName}/*`)
-	const bits = await loadBits()
 
-	async function loadBits() {
-		const bits: Bits = new Map()
-		const bitPaths = await globby(bitPathsGlob)
-
-		await Promise.all(
-			bitPaths.map(async (bitPath) => {
-				const bp = bitPath.toString()
-				bits.set(
-					posix.join(posix.dirname(bp), posix.basename(bp)),
-					(await readFile(bp)).toString(),
-				)
-			}),
-		)
-
-		return bits
+	const bits = new Map<string, string>()
+	for await (const [bitPath, bitContents] of loadBits()) {
+		bits.set(bitPath, bitContents)
 	}
+
+	resolveNestedBits()
 
 	for await (const docPath of globby.stream([
 		posix.join(root, '**'),
 		`!${bitPathsGlob}`,
 	])) {
-		const bitPattern = /\${([\w\d-]+)}/g
-		const docDir = posix.dirname(docPath.toString())
-		const contents = (await readFile(docPath)).toString()
-
+		const dp = docPath.toString()
 		yield [
-			posix.relative(root, docPath.toString()),
-			contents.replace(bitPattern, (_m, bitName) => {
-				const absoluteRoot = posix.resolve(root)
-				let currentDir = docDir
-
-				while (true) {
-					const bitPath = posix.join(
-						currentDir,
-						bitsDirName,
-						`${bitName}.md`,
-					)
-					const bit = bits.get(bitPath)
-					if (bit) {
-						return bit
-					}
-
-					const parentDir = posix.resolve(currentDir, '..')
-					if (
-						currentDir === absoluteRoot ||
-						currentDir === parentDir
-					) {
-						bail()
-					}
-
-					currentDir = parentDir
-				}
-
-				function bail(): never {
-					throw new Error(
-						red(
-							`bit \${${bitName}} not found relative to ${posix.relative(
-								process.cwd(),
-								docDir,
-							)}`,
-						),
-					)
-				}
-			}),
+			posix.relative(root, dp),
+			replaceContents((await readFile(dp)).toString(), posix.dirname(dp)),
 		] as const
+	}
+
+	async function* loadBits() {
+		for await (const bitPath of globby.sync(bitPathsGlob)) {
+			const bp = bitPath.toString()
+			yield [
+				posix.join(
+					posix.dirname(bp),
+					posix.basename(bp, posix.extname(bp)),
+				),
+				(await readFile(bp)).toString(),
+			] as const
+		}
+	}
+
+	function resolveNestedBits() {
+		const bitsDirNameLength = bitsDirName.length
+		for (const [bitPath, bitContents] of bits.entries()) {
+			bits.set(
+				bitPath,
+				replaceContents(
+					bitContents,
+					posix.dirname(bitPath).slice(0, bitsDirNameLength * -1),
+				),
+			)
+		}
+	}
+
+	function replaceContents(contents: string, docDir: string) {
+		return contents.replace(bitPattern, (_m, bitName) => {
+			const absoluteRoot = posix.resolve(root)
+			let currentDir = docDir
+
+			while (true) {
+				const bitPath = posix.join(currentDir, bitsDirName, bitName)
+				const bit = bits.get(bitPath)
+				if (bit) {
+					return bit
+				}
+
+				const parentDir = posix.resolve(currentDir, '..')
+				if (currentDir === absoluteRoot || currentDir === parentDir) {
+					bail()
+				}
+
+				currentDir = parentDir
+			}
+
+			function bail(): never {
+				throw new Error(
+					red(
+						`bit \${${bitName}} not found relative to ${posix.relative(
+							process.cwd(),
+							docDir,
+						)}`,
+					),
+				)
+			}
+		})
 	}
 }
 
