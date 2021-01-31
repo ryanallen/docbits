@@ -8,6 +8,7 @@ A single source of truth for documentation, keeping things [DRY](https://en.wiki
 - For each variable, it will look in your `-b` or `--bitsDirName` folder for a file name that matches the variable name (without the extension).
   - `${foo}` will look for a file in `_bits` matching `foo*`, which could be a file named `foo.md` or `foo.yml` or just `foo`.
 - Once found, the variable will be replaced by the exact file contents of the bit.
+- If not found, no replacement will be made and no errors or warnings will be thrown.
 - Finally, the resulting documentation will be written at `-o` or `--outputDir`, preserving the existing folder structure.
 
 ## Installation

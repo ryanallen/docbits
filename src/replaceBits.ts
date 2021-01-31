@@ -2,7 +2,6 @@ import { readFile as _readFile, writeFile as _writeFile } from 'fs'
 import { dirname, posix, resolve } from 'path'
 import { promisify } from 'util'
 
-import { red } from 'chalk'
 import globby from 'globby'
 import mkdirp from 'mkdirp'
 
@@ -100,7 +99,7 @@ export async function* replaceBits({
 	}
 
 	function replaceContents(contents: string, docDir: string) {
-		return contents.replace(bitPattern, (_m, bitName) => {
+		return contents.replace(bitPattern, (match, bitName) => {
 			const absoluteRoot = posix.resolve(root)
 			let currentDir = docDir
 
@@ -113,22 +112,13 @@ export async function* replaceBits({
 
 				const parentDir = posix.resolve(currentDir, '..')
 				if (currentDir === absoluteRoot || currentDir === parentDir) {
-					bail()
+					break
 				}
 
 				currentDir = parentDir
 			}
 
-			function bail(): never {
-				throw new Error(
-					red(
-						`bit \${${bitName}} not found relative to ${posix.relative(
-							process.cwd(),
-							docDir,
-						)}`,
-					),
-				)
-			}
+			return match
 		})
 	}
 }

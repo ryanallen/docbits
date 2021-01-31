@@ -26,14 +26,16 @@ describe(replaceBits.name, () => {
 		expect(result).toMatchSnapshot()
 	})
 
-	it("throws if bit doesn't exist", async () => {
-		return expect(async () => {
-			for await (const [] of replaceBits({
-				root: `${fixturesPath}/missing-bit`,
-			})) {
-				continue
-			}
-		}).rejects.toThrow('bit ${does-not-exist} not found relative to')
+	it('does not replace or throw if bit does not exist', async () => {
+		const result: [string, string][] = []
+
+		for await (const [relativePath, contents] of replaceBits({
+			root: `${fixturesPath}/missing-bit`,
+		})) {
+			result.push([relativePath, contents])
+		}
+
+		expect(result).toMatchSnapshot()
 	})
 })
 

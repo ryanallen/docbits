@@ -75,10 +75,7 @@ export async function cli(args = process.argv.slice(2)) {
 		showHelp()
 	}
 
-	try {
-		await writeResult(replaceBits(replaceOptions), writeOptions)
-	} catch (error) {
-		console.error(error.message)
-		console.log()
-	}
+	console.log(JSON.stringify(replaceOptions), JSON.stringify(writeOptions))
+
+	return writeResult(replaceBits(replaceOptions), writeOptions)
 }

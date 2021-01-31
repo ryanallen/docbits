@@ -71,16 +71,14 @@ describe(cli.name, () => {
 	})
 
 	describe('missing bit scenario', () => {
-		it('logs the error', async () => {
+		it('logs nothing', async () => {
 			const location = posix.join(
 				relative(process.cwd(), __dirname),
 				'__fixtures__',
 				'missing-bit',
 			)
 			await cli(['--root', location])
-			expect((consoleError.mock.calls[0] as [string])[0]).toMatch(
-				'bit ${does-not-exist} not found relative to',
-			)
+			expect(consoleError).not.toHaveBeenCalled()
 		})
 	})
 })

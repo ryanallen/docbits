@@ -1,5 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`replaceBits does not replace or throw if bit does not exist 1`] = `
+Array [
+  Array [
+    "home.md",
+    "# Home
+
+\${does-not-exist}
+",
+  ],
+]
+`;
+
 exports[`replaceBits replaces nested bits 1`] = `
 Array [
   Array [
