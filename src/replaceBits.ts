@@ -72,15 +72,16 @@ export async function* replaceBits({
 		return bits
 	}
 
-	const docPaths = await globby([posix.join(root, '**'), `!${bitPathsGlob}`])
-
-	for (const docPath of docPaths) {
+	for await (const docPath of globby.stream([
+		posix.join(root, '**'),
+		`!${bitPathsGlob}`,
+	])) {
 		const bitPattern = /\${([\w\d-]+)}/g
-		const docDir = posix.dirname(docPath)
+		const docDir = posix.dirname(docPath.toString())
 		const contents = (await readFile(docPath)).toString()
 
 		yield [
-			posix.relative(root, docPath),
+			posix.relative(root, docPath.toString()),
 			contents.replace(bitPattern, (_m, bitName) => {
 				const absoluteRoot = posix.resolve(root)
 				let currentDir = docDir
