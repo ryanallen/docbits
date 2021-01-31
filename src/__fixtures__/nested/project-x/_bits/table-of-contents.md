@@ -1,1 +1,1 @@
-table of contents for project-x
+table of contents for ${scope}

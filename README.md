@@ -4,8 +4,8 @@ A single source of truth for documentation, keeping things [DRY](https://en.wiki
 
 ## How it works
 
-- Starting in your `-r` or `--root` folder, docbits will look for variables in the format `${variable_name}`.
-- For each variable, it will look in your `-b` or `--bitsDirName` folder for a file with a base name matching the variable name.
+- Starting in your `-r` or `--root` folder, docbits will look for variables in the format `${variable-name}`.
+- For each variable, it will look in your `-b` or `--bitsDirName` folder for a file name that matches the variable name (without the extension).
   - `${foo}` will look for a file in `_bits` matching `foo*`, which could be a file named `foo.md` or `foo.yml` or just `foo`.
 - Once found, the variable will be replaced by the exact file contents of the bit.
 - Finally, the resulting documentation will be written at `-o` or `--outputDir`, preserving the existing folder structure.
