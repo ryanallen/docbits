@@ -56,8 +56,8 @@ describe(cli.name, () => {
 					['  -h, --help'],
 					['  -v, --version'],
 					['  -b, --bitsDirName  default: "_bits"'],
-					['  -r, --root         default: "./documents"'],
-					['  -o, --outputDir    default: "./dist/documents"'],
+					['  -r, --root         default: "./docs"'],
+					['  -o, --outputDir    default: "./dist/docs"'],
 				])
 			})
 		},
