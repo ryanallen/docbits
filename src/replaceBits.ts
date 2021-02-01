@@ -19,7 +19,7 @@ export interface ReplaceOptions {
 	/**
 	 * Starting here, docbits will look in files for variables in the format
 	 * `${variable-name}`.
-	 * @default "./documents"
+	 * @default "./docs"
 	 */
 	root?: string
 }
@@ -28,15 +28,15 @@ export interface WriteOptions {
 	/**
 	 * The resulting files will be written here, preserving the existing folder
 	 * structure.
-	 * @default "./dist/documents"
+	 * @default "./dist/docs"
 	 */
 	outputDir?: string
 }
 
 export enum DefaultOptions {
 	BitsDirName = '_bits',
-	Root = './documents',
-	OutputDir = './dist/documents',
+	Root = './docs',
+	OutputDir = './dist/docs',
 }
 
 const bitPattern = /\${([\w\d-_]+)}/g
