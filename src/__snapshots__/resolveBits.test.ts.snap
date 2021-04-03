@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`replaceBits replaces nested bits 1`] = `
+exports[`resolveBits resolves nested bits 1`] = `
 Array [
   Array [
     "home.md",
