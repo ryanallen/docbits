@@ -9,7 +9,7 @@ import mkdirp from 'mkdirp'
 const readFile = promisify(_readFile)
 const writeFile = promisify(_writeFile)
 
-export interface ReplaceOptions {
+export interface ResolveOptions {
 	/**
 	 * For each variable, docbits will look here for file names that match the
 	 * variable name (without the extension).
@@ -44,15 +44,15 @@ const bitPattern = /\${([\w\d-_]+)}/g
 /* istanbul ignore next */
 /**
  * Replaces variables in files that live within `${options.root}`.
- * Searches for variables that match the format `${bit-name}` and replaces
+ * Searches for variables that match the format `${bit-name}` and resolves
  * them with content from matching bits in `${options.bitsDirName}/${bit-name}*`
  * within the same folder.
  * @param options
  */
-export async function* replaceBits({
+export async function* resolveBits({
 	bitsDirName = DefaultOptions.BitsDirName,
 	root = DefaultOptions.Root,
-}: ReplaceOptions = {}) {
+}: ResolveOptions = {}) {
 	const bitPathsGlob = posix.join(root, `**/${bitsDirName}/*`)
 
 	const bits = new Map<string, string>()
@@ -69,7 +69,7 @@ export async function* replaceBits({
 		const dp = docPath.toString()
 		yield [
 			posix.relative(root, dp),
-			replaceContents((await readFile(dp)).toString(), posix.dirname(dp)),
+			resolveContents((await readFile(dp)).toString(), posix.dirname(dp)),
 		] as const
 	}
 
@@ -91,7 +91,7 @@ export async function* replaceBits({
 		for (const [bitPath, bitContents] of bits.entries()) {
 			bits.set(
 				bitPath,
-				replaceContents(
+				resolveContents(
 					bitContents,
 					posix.dirname(bitPath).slice(0, bitsDirNameLength * -1),
 				),
@@ -99,7 +99,7 @@ export async function* replaceBits({
 		}
 	}
 
-	function replaceContents(contents: string, docDir: string) {
+	function resolveContents(contents: string, docDir: string) {
 		return contents.replace(bitPattern, (_m, bitName) => {
 			const absoluteRoot = posix.resolve(root)
 			let currentDir = docDir
@@ -134,7 +134,7 @@ export async function* replaceBits({
 }
 
 export async function writeResult(
-	files: ReturnType<typeof replaceBits>,
+	files: ReturnType<typeof resolveBits>,
 	/* istanbul ignore next */
 	{ outputDir = DefaultOptions.OutputDir }: WriteOptions = {},
 ) {

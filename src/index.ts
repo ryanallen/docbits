@@ -1,1 +1,1 @@
-export * from './replaceBits'
+export * from './resolveBits'

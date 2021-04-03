@@ -55,7 +55,6 @@ describe(cli.name, () => {
 					['Options:'],
 					['  -h, --help'],
 					['  -v, --version'],
-					['  -b, --bitsDirName  default: "_bits"'],
 					['  -r, --root         default: "./docs"'],
 					['  -o, --outputDir    default: "./dist/docs"'],
 				])

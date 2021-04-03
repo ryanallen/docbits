@@ -7,17 +7,17 @@ import mkdirp from 'mkdirp'
 
 import pkg from '../package.json'
 
-import { replaceBits, writeResult } from './replaceBits'
+import { resolveBits, writeResult } from './resolveBits'
 
 const readFile = promisify(_readFile)
 
-describe(replaceBits.name, () => {
+describe(resolveBits.name, () => {
 	const fixturesPath = 'src/__fixtures__'
 
-	it('replaces nested bits', async () => {
+	it('resolves nested bits', async () => {
 		const result: [string, string][] = []
 
-		for await (const [relativePath, contents] of replaceBits({
+		for await (const [relativePath, contents] of resolveBits({
 			root: `${fixturesPath}/nested`,
 		})) {
 			result.push([relativePath, contents])
@@ -28,7 +28,7 @@ describe(replaceBits.name, () => {
 
 	it("throws if bit doesn't exist", async () => {
 		return expect(async () => {
-			for await (const [] of replaceBits({
+			for await (const [] of resolveBits({
 				root: `${fixturesPath}/missing-bit`,
 			})) {
 				continue
@@ -46,7 +46,7 @@ describe(writeResult.name, () => {
 	describe('nested bits', () => {
 		beforeAll(() =>
 			writeResult(
-				replaceBits({
+				resolveBits({
 					root: `${fixturesPath}/nested`,
 				}),
 				{ outputDir },
