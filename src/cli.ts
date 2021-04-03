@@ -4,12 +4,12 @@ import { red } from 'chalk'
 import pkg from '../package.json'
 
 import {
-	replaceBits,
+	resolveBits,
 	DefaultOptions,
-	ReplaceOptions,
+	ResolveOptions,
 	WriteOptions,
 	writeResult,
-} from './replaceBits'
+} from './resolveBits'
 
 export async function cli(args = process.argv.slice(2)) {
 	const { help, version }: { help?: string; version?: string } = {
@@ -48,17 +48,14 @@ export async function cli(args = process.argv.slice(2)) {
 		console.log(`  -h, --help`)
 		console.log(`  -v, --version`)
 		/* prettier-ignore */
-		console.log(`  -b, --bitsDirName  default: "${DefaultOptions.BitsDirName}"`)
-		/* prettier-ignore */
 		console.log(`  -r, --root         default: "${DefaultOptions.Root}"`)
 		/* prettier-ignore */
 		console.log(`  -o, --outputDir    default: "${DefaultOptions.OutputDir}"`)
 	}
 
-	const replaceOptions = ({
-		...consumeOptionArgument('bitsDirName', { short: 'b' }),
+	const resolveOptions = ({
 		...consumeOptionArgument('root', { short: 'r' }),
-	} as unknown) as ReplaceOptions
+	} as unknown) as ResolveOptions
 
 	const writeOptions = ({
 		...consumeOptionArgument('outputDir', { short: 'o' }),
@@ -76,7 +73,7 @@ export async function cli(args = process.argv.slice(2)) {
 	}
 
 	try {
-		await writeResult(replaceBits(replaceOptions), writeOptions)
+		await writeResult(resolveBits(resolveOptions), writeOptions)
 	} catch (error) {
 		console.error(error.message)
 		console.log()
