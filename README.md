@@ -15,6 +15,10 @@ A single source of truth for documentation, keeping things [DRY](https://en.wiki
 ```bash
 npm install --save-dev docbits
 ```
+or  
+```bash
+npx docbits
+```
 
 ## Usage
 
